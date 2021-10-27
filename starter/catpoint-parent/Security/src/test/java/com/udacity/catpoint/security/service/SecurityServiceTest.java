@@ -49,33 +49,33 @@ public class SecurityServiceTest {
         sensor = new Sensor("sensor", SensorType.DOOR);
     }
 
-    // covers application requirement 1
+    // requirement 1
     @Test
-    void ifAlarmIsArmed_andSensorIsActivated_changeAlarmStatusToPending(){
+    void ifAlarmIsArmed_SensorIsActivated_changeAlarmStatusToPending(){
         securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
         when(securityService.getAlarmStatus()).thenReturn(AlarmStatus.NO_ALARM);
         securityService.changeSensorActivationStatus(sensor, true);
         verify(securityRepository, Mockito.times(1)).setAlarmStatus(AlarmStatus.PENDING_ALARM);
     }
 
-    // covers application requirement 2
+    // requirement 2
     @Test
-    void ifAlarmIsArmed_andSensorIsActivated_andAlarmIsAlreadyPending_changeAlarmStatusToOn(){
+    void ifAlarmIsArmed_SensorIsActivated_andAlarmIsAlreadyPending_changeAlarmStatusToOn(){
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         securityService.changeSensorActivationStatus(sensor, true);
         verify(securityRepository, Mockito.times(1)).setAlarmStatus(AlarmStatus.ALARM);
     }
 
-    // covers application requirement 3
+    // requirement 3
     @Test
-    void ifAlarmPending_andSensorsInactive_changeToNoAlarm(){
+    void ifAlarmPending_SensorsInactive_changeToNoAlarm(){
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         sensor.setActive(false);
         securityService.setAlarmStatus(AlarmStatus.NO_ALARM);
         verify(securityRepository, Mockito.times(1)).setAlarmStatus(any(AlarmStatus.class));
     }
 
-    // covers application requirement 4
+    // requirement 4
     @Test
     void check_whenAlarmIsaActive_changeInSensorState_shouldNotAlarmState(){
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
@@ -83,15 +83,15 @@ public class SecurityServiceTest {
         Mockito.verify(securityRepository, Mockito.times(0)).setAlarmStatus(any(AlarmStatus.class));
     }
 
-    // covers application requirement 5
+    // requirement 5
     @Test
-    void ifSensorActivated_whileAlreadyActive_andSystemIsInPendingState_changeToAlarmState(){
+    void ifSensorActivated_whileAlreadyActive_SystemIsInPendingState_changeToAlarmState(){
         Mockito.when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         securityService.changeSensorActivationStatus(sensor, true);
         Mockito.verify(securityRepository, Mockito.times(1)).setAlarmStatus(any(AlarmStatus.class));
     }
 
-    //  covers application requirement 6
+    //  requirement 6
     @Test
     void check_whenInactiveSensorDeactivated_noChangeInAlarmState() {
         sensor.setActive(false);
@@ -101,7 +101,7 @@ public class SecurityServiceTest {
 
     }
 
-    // covers application requirement 7
+    // requirement 7
     @Test
     void ifImageContainsCat_whileTheSystemIsArmedHome_putSystemIntoAlarmStatus(){
         securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
@@ -111,7 +111,7 @@ public class SecurityServiceTest {
         verify(securityRepository, Mockito.times(1)).setAlarmStatus(AlarmStatus.ALARM);
     }
 
-    // covers application requirement 8
+    // requirement 8
     @Test
     void ifCatNotDetected_changeStatusToNoAlarm_asLongAsSensorInactive(){
         Mockito.when(imageService.imageContainsCat(any(), anyFloat())).thenReturn(false);
@@ -121,14 +121,14 @@ public class SecurityServiceTest {
         Mockito.verify(securityRepository, Mockito.times(1)).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
 
-    // covers application requirement 9
+    // requirement 9
     @Test
     void ifSystemDisarmed_setStatusToNoAlarm(){
         securityService.setArmingStatus(ArmingStatus.DISARMED);
         verify(securityRepository, Mockito.times(1)).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
 
-    // covers application requirement 10
+    // requirement 10
     @Test
     void ifSystemArmed_resetAllSensorsToInactive(){
         securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
@@ -137,7 +137,7 @@ public class SecurityServiceTest {
         });
     }
 
-    // covers application requirement 11
+    // requirement 11
     @Test
     void ifSystemArmed_whileCatDetected_setAlarmStatusToAlarm(){
         securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
@@ -150,19 +150,19 @@ public class SecurityServiceTest {
     // following tests aren't part of the requirements, just added to get full coverage
 
     @Test
-    void testAddAndRemoveStatusListener() {
+    void testAddRemoveStatusListener() {
         securityService.addStatusListener(statusListener);
         securityService.removeStatusListener(statusListener);
     }
 
     @Test
-    void testAddAndRemoveSensor() {
+    void testAddRemoveSensor() {
         securityService.addSensor(sensor);
         securityService.removeSensor(sensor);
     }
 
     @Test
-    void checkChangeSensorActivationStatusWorks_withHandleSensorDeactivatedCovered(){
+    void checkChangeSensorActivationStatus_withHandleSensorDeactivatedCovered(){
         Sensor sensor1 = new Sensor("testSensor",SensorType.DOOR);
         sensor1.setActive(true);
         securityRepository.setAlarmStatus(AlarmStatus.PENDING_ALARM);
@@ -174,7 +174,7 @@ public class SecurityServiceTest {
 
     @ParameterizedTest
     @EnumSource(ArmingStatus.class)
-    public void setArmingStatusMethod_runsThreeTimes(ArmingStatus armingStatus) {
+    public void setArmingStatus_runsThreeTimes(ArmingStatus armingStatus) {
         // method just to use @Parameterized test
         securityService.setArmingStatus(armingStatus);
 
@@ -182,7 +182,7 @@ public class SecurityServiceTest {
 
     // both og the following cover void handSensorDeactivated()
     @Test
-    void test_handSensorActivated_whenRepositoryDisarmed_andAlarmOn_shouldTriggerHandleSensorDeactivated(){
+    void test_handSensorActivated_whenRepositoryDisarmed_AlarmOn_shouldTriggerHandleSensorDeactivated(){
         securityRepository.setArmingStatus(ArmingStatus.DISARMED);
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
         sensor.setActive(true);
@@ -190,7 +190,7 @@ public class SecurityServiceTest {
     }
 
     @Test
-    void test_handSensorActivated_whenRepositoryDisarmed_andRepositoryAlarmPending_shouldTriggerHandleSensorDeactivated(){
+    void test_handSensorActivated_whenRepositoryDisarmed_RepositoryAlarmPending_shouldTriggerHandleSensorDeactivated(){
         securityRepository.setArmingStatus(ArmingStatus.DISARMED);
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         sensor.setActive(true);
@@ -199,7 +199,7 @@ public class SecurityServiceTest {
 
     // the following method covers void handleSensorActivated()
     @Test
-    void test_handSensorActivated_whenRepositoryDisarmed_andNoAlarm_shouldTriggerHandleSensorActivated(){
+    void test_handSensorActivated_whenRepositoryDisarmed_NoAlarm_shouldTriggerHandleSensorActivated(){
         when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.NO_ALARM);
         sensor.setActive(false);
